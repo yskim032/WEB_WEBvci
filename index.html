@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASC to Web VCI XML Converter | Web Version</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1 class="title">ASC → Web VCI XML Converter</h1>
+            <p class="subtitle">Web Version | 20260216 by The End : YS</p>
+        </header>
+
+        <!-- Port Selection and Lashing Counts -->
+        <section class="port-section">
+            <div class="port-controls">
+                <label class="port-label">Select Port:</label>
+                <label class="radio-label">
+                    <input type="radio" name="port" value="KRPUS" checked>
+                    <span>KRPUS</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="port" value="KRKAN">
+                    <span>KRKAN</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="port" value="KRINC">
+                    <span>KRINC</span>
+                </label>
+                <button id="paste-excel-btn" class="btn-paste">Paste Excel</button>
+            </div>
+
+            <div class="lashing-counts">
+                <span class="lashing-label">Lashing -</span>
+                <span id="lashing-disc" class="count-disc">DIS: 0</span>
+                <span id="lashing-load" class="count-load">LOD: 0</span>
+                <span id="lashing-total" class="count-total">Total: 0</span>
+            </div>
+
+            <!-- Partner Cargo Ticker -->
+            <div id="partner-ticker" class="partner-ticker" style="display: none;">
+                <div class="ticker-content">
+                    <span class="ticker-text">Check for partner cargo's [Not for MSC
+                        Account]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Check
+                        for partner cargo's [Not for MSC
+                        Account]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </div>
+            </div>
+
+            <div id="marquee-warning" class="marquee-warning" style="display: none;">
+                ⚠ Not MSC account check!!!
+            </div>
+        </section>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <button class="tab-button active" data-tab="main">Main</button>
+            <button class="tab-button" data-tab="type-modification">Type Modification</button>
+            <button class="tab-button" data-tab="unmapped">
+                Unmapped Types <span id="unmapped-tab-badge"
+                    style="color:red; font-weight:bold; margin-left:5px; display:none;">0</span>
+            </button>
+            <button class="tab-button" data-tab="lashing">Lashing Details</button>
+            <button class="tab-button" data-tab="correction">Correction</button>
+        </nav>
+
+        <!-- Main Tab -->
+        <div id="main-tab" class="tab-content active">
+            <div class="file-zones">
+                <!-- Discharge Zone -->
+                <div class="file-zone discharge-zone">
+                    <h3>DISCHARGE FILE</h3>
+                    <div class="file-input-row">
+                        <span id="disc-file-path" class="file-path">No file selected</span>
+                        <input type="file" id="disc-file-input" accept=".asc,.txt" style="display: none;">
+                    </div>
+                    <div id="disc-drop-zone" class="drop-zone disc-drop">
+                        Drag discharge ASC file here
+                    </div>
+                    <div id="disc-count" class="match-count count-disc">Matched containers: 0</div>
+
+                    <div class="account-section">
+                        <div class="input-row">
+                            <label>Account Code:</label>
+                            <input type="text" id="disc-account-code" value="MSC" class="account-code">
+                            <span>(paste container numbers below)</span>
+                            <span id="disc-account-text-count" class="count-label">Count: 0</span>
+                        </div>
+                        <textarea id="disc-account-text" rows="3"></textarea>
+
+                        <div class="input-row">
+                            <label>From/To TPF:</label>
+                            <span id="disc-tpf-text-count" class="count-label">Count: 0</span>
+                        </div>
+                        <textarea id="disc-tpf-text" rows="2"></textarea>
+
+                        <div class="input-row">
+                            <label>From/To Truck:</label>
+                            <span id="disc-truck-text-count" class="count-label">Count: 0</span>
+                        </div>
+                        <textarea id="disc-truck-text" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Load Zone -->
+                <div class="file-zone load-zone">
+                    <h3>LOAD FILE</h3>
+                    <div class="file-input-row">
+                        <span id="load-file-path" class="file-path">No file selected</span>
+                        <input type="file" id="load-file-input" accept=".asc,.txt" style="display: none;">
+                    </div>
+                    <div id="load-drop-zone" class="drop-zone load-drop">
+                        Drag load ASC file here
+                    </div>
+                    <div id="load-count" class="match-count count-load">Matched containers: 0</div>
+
+                    <div class="account-section">
+                        <div class="input-row">
+                            <label>Account Code:</label>
+                            <input type="text" id="load-account-code" value="MSC" class="account-code">
+                            <span>(paste container numbers below)</span>
+                            <span id="load-account-text-count" class="count-label">Count: 0</span>
+                        </div>
+                        <textarea id="load-account-text" rows="3"></textarea>
+
+                        <div class="input-row">
+                            <label>From/To TPF:</label>
+                            <span id="load-tpf-text-count" class="count-label">Count: 0</span>
+                        </div>
+                        <textarea id="load-tpf-text" rows="2"></textarea>
+
+                        <div class="input-row">
+                            <label>From/To Truck:</label>
+                            <span id="load-truck-text-count" class="count-label">Count: 0</span>
+                        </div>
+                        <textarea id="load-truck-text" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OOG and DG Special Cargo Fields -->
+            <section class="special-cargo-input">
+                <h3>OOG & DG Assignment (paste container numbers)</h3>
+                <div class="special-grid">
+                    <!-- OOG Fields -->
+                    <div class="special-group oog-group">
+                        <h4>OOG (Out of Gauge)</h4>
+                        <div class="special-box">
+                            <div class="type-header">
+                                <label>OOG - DIS</label>
+                                <span id="oog-dis-count" class="count-label">Count: 0</span>
+                            </div>
+                            <textarea id="oog-dis-textarea" rows="2"></textarea>
+                        </div>
+                        <div class="special-box">
+                            <div class="type-header">
+                                <label>OOG - LOAD</label>
+                                <span id="oog-load-count" class="count-label">Count: 0</span>
+                            </div>
+                            <textarea id="oog-load-textarea" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- DG Fields -->
+                    <div class="special-group dg-group">
+                        <h4>DG (Dangerous Goods / IMO)</h4>
+                        <div class="special-box">
+                            <div class="type-header">
+                                <label>DG - DIS</label>
+                                <span id="dg-dis-count" class="count-label">Count: 0</span>
+                            </div>
+                            <textarea id="dg-dis-textarea" rows="2"></textarea>
+                        </div>
+                        <div class="special-box">
+                            <div class="type-header">
+                                <label>DG - LOAD</label>
+                                <span id="dg-load-count" class="count-label">Count: 0</span>
+                            </div>
+                            <textarea id="dg-load-textarea" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Type Assignment -->
+            <section class="type-assignment">
+                <h3>Global Type Assignment (paste container numbers)</h3>
+                <div class="type-grid">
+                    <div class="type-box">
+                        <div class="type-header">
+                            <label>LOD</label>
+                            <span id="lod-count" class="count-label">Count: 0</span>
+                        </div>
+                        <textarea id="lod-textarea" rows="3"></textarea>
+                    </div>
+                    <div class="type-box">
+                        <div class="type-header">
+                            <label>DIS</label>
+                            <span id="dis-count" class="count-label">Count: 0</span>
+                        </div>
+                        <textarea id="dis-textarea" rows="3"></textarea>
+                    </div>
+                    <div class="type-box">
+                        <div class="type-header">
+                            <label>TSL</label>
+                            <span id="tsl-count" class="count-label">Count: 0</span>
+                        </div>
+                        <textarea id="tsl-textarea" rows="3"></textarea>
+                    </div>
+                    <div class="type-box">
+                        <div class="type-header">
+                            <label>TSD</label>
+                            <span id="tsd-count" class="count-label">Count: 0</span>
+                        </div>
+                        <textarea id="tsd-textarea" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div class="generate-section">
+                    <button id="generate-xml-btn" class="btn-generate">Generate XML</button>
+                    <span id="status-message" class="status-info">Ready</span>
+                </div>
+            </section>
+        </div>
+
+        <!-- Type Modification Tab -->
+        <div id="type-modification-tab" class="tab-content">
+            <section class="special-cargo">
+                <h3>Detected Special Cargo (from ASC Files)</h3>
+                <div class="cargo-grid">
+                    <div class="cargo-box">
+                        <div class="cargo-header">
+                            <strong>DIS - DG (IMO)</strong>
+                            <span id="dis-dg-count" class="cargo-count">0 cntrs</span>
+                        </div>
+                        <textarea id="dis-dg-text" rows="5" readonly></textarea>
+                    </div>
+                    <div class="cargo-box">
+                        <div class="cargo-header">
+                            <strong>DIS - OOG</strong>
+                            <span id="dis-oog-count" class="cargo-count">0 cntrs</span>
+                        </div>
+                        <textarea id="dis-oog-text" rows="5" readonly></textarea>
+                    </div>
+                    <div class="cargo-box">
+                        <div class="cargo-header">
+                            <strong>LOAD - DG (IMO)</strong>
+                            <span id="load-dg-count" class="cargo-count">0 cntrs</span>
+                        </div>
+                        <textarea id="load-dg-text" rows="5" readonly></textarea>
+                    </div>
+                    <div class="cargo-box">
+                        <div class="cargo-header">
+                            <strong>LOAD - OOG</strong>
+                            <span id="load-oog-count" class="cargo-count">0 cntrs</span>
+                        </div>
+                        <textarea id="load-oog-text" rows="5" readonly></textarea>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="unmapped-tab" class="tab-content">
+            <div class="unmapped-header">
+                <p id="unmapped-count" class="unmapped-count">Unmapped containers: 0 (needs mapping: 0)</p>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <p class="instruction">Double-click "New Type" to edit. Select rows and click "Copy to Selected" to
+                        fill down.</p>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="copy-to-selected-btn" class="btn-paste"
+                            style="background: var(--primary-gradient); font-size: 0.9em; padding: 8px 16px;">Copy To
+                            Selected</button>
+                        <button id="recommend-type-btn" class="btn-paste"
+                            style="background: var(--secondary-gradient); font-size: 0.9em; padding: 8px 16px;">Recommend
+                            Type</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table id="unmapped-table">
+                    <thead>
+                        <tr>
+                            <th>Container Number</th>
+                            <th>Original Type</th>
+                            <th>New Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recommend Type Modal -->
+        <div id="recommend-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Select Container Type</h3>
+                    <button id="close-recommend-modal" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="recommend-search" placeholder="Search code, description or type..."
+                        class="search-input">
+                    <div class="table-wrapper" style="max-height: 400px; overflow-y: auto;">
+                        <table id="recommend-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Description</th>
+                                    <th>Size & Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lashing Details Tab -->
+        <div id="lashing-tab" class="tab-content">
+            <!-- Button Controls -->
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <button id="btn-show-lashing" class="lashing-view-btn lashing-btn active">
+                    <span class="btn-icon">🔴</span> Lashing Required
+                    <span id="lashing-count" class="count-badge">0</span>
+                </button>
+                <button id="btn-show-non-lashing" class="lashing-view-btn non-lashing-btn">
+                    <span class="btn-icon">🔵</span> Non-Lashing
+                    <span id="non-lashing-count" class="count-badge">0</span>
+                </button>
+            </div>
+
+            <!-- Filter Input Section -->
+            <div class="lashing-filter-container"
+                style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
+                <textarea id="lashing-filter-input"
+                    placeholder="Paste container list here (space, comma, or newline separated)..."
+                    style="width: 100%; height: 60px; margin-bottom: 10px; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; resize: vertical;"></textarea>
+                <div class="filter-actions" style="display: flex; gap: 10px; align-items: center;">
+                    <button id="btn-apply-lashing-filter" class="btn-filter-apply"
+                        style="background: #2ecc71; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">Apply
+                        Filter</button>
+                    <button id="btn-clear-lashing-filter" class="btn-filter-clear"
+                        style="background: #95a5a6; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Clear
+                        Filter</button>
+                    <span id="filter-status-msg" style="margin-left: 10px; color: #666; font-size: 0.9em;"></span>
+                </div>
+            </div>
+
+            <!-- Lashing Table Section -->
+            <div id="lashing-section" class="lashing-section active">
+                <div class="section-header">
+                    <h3 style="color: #e74c3c; margin: 0;">Lashing Required Containers</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btn-lashing-copy" class="btn-paste">Copy to Clipboard</button>
+                        <button id="btn-lashing-export" class="btn-generate">Export to Excel</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="lashing-table">
+                        <thead>
+                            <tr>
+                                <th>Seq</th>
+                                <th>Container No</th>
+                                <th>Type</th>
+                                <th>POL</th>
+                                <th>POD</th>
+                                <th>Stowage</th>
+                                <th>Weight</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div id="lashing-pagination" class="pagination-controls"></div>
+            </div>
+
+            <!-- Non-Lashing Table Section -->
+            <div id="non-lashing-section" class="lashing-section">
+                <div class="section-header">
+                    <h3 style="color: #3498db; margin: 0;">Non-Lashing Containers</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btn-non-lashing-copy" class="btn-paste">Copy to Clipboard</button>
+                        <button id="btn-non-lashing-export" class="btn-generate">Export to Excel</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="non-lashing-table">
+                        <thead>
+                            <tr>
+                                <th>Seq</th>
+                                <th>Container No</th>
+                                <th>Type</th>
+                                <th>POL</th>
+                                <th>POD</th>
+                                <th>Stowage</th>
+                                <th>Weight</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div id="non-lashing-pagination" class="pagination-controls"></div>
+            </div>
+        </div>
+
+        <!-- Correction Tab -->
+        <div id="correction-tab" class="tab-content">
+            <div class="correction-summary">
+                <p id="correction-summary" class="validation-info">No validation performed yet</p>
+                <button id="validate-btn" class="btn-validate">Refresh Validation</button>
+            </div>
+
+            <div class="validation-section">
+                <h4>Discharge Validation</h4>
+                <p id="disc-correction-status" class="validation-status">ASC: 0 | Excel: 0 | Status: Waiting</p>
+                <div class="table-wrapper">
+                    <table id="disc-correction-tree">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Container Number</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="validation-section">
+                <h4>Load Validation</h4>
+                <p id="load-correction-status" class="validation-status">ASC: 0 | Excel: 0 | Status: Waiting</p>
+                <div class="table-wrapper">
+                    <table id="load-correction-tree">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Container Number</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/parser.js"></script>
+    <script src="js/xmlGenerator.js"></script>
+    <script src="js/typeMapper.js"></script>
+    <script src="js/validator.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/recommendationData.js"></script>
+    <script src="js/lashingUI.js"></script>
+    <script src="js/appFunctions.js"></script>
+</body>
+
+</html>
