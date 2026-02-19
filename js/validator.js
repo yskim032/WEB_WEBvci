@@ -11,7 +11,7 @@ class Validator {
             load: []
         };
     }
-    
+
     /**
      * Validate containers
      * @param {object} discContainers - Discharge containers from ASC
@@ -24,11 +24,15 @@ class Validator {
             discharge: [],
             load: []
         };
-        
-        // Get all container numbers from ASC files
-        const ascDiscNumbers = new Set(Object.keys(discContainers));
-        const ascLoadNumbers = new Set(Object.keys(loadContainers));
-        
+
+        // Filter for MSC containers
+        const mscDiscNumbers = new Set(
+            Object.keys(discContainers).filter(cnum => discContainers[cnum].operatorcode === 'MSC')
+        );
+        const mscLoadNumbers = new Set(
+            Object.keys(loadContainers).filter(cnum => loadContainers[cnum].operatorcode === 'MSC')
+        );
+
         // Get all container numbers from Excel/type assignments
         const excelDiscNumbers = new Set([
             ...typeAssignments.DIS,
@@ -38,39 +42,37 @@ class Validator {
             ...typeAssignments.LOD,
             ...typeAssignments.TSL
         ]);
-        
+
         // Validate discharge
         this._validateSet(
-            ascDiscNumbers,
+            mscDiscNumbers,
             excelDiscNumbers,
-            'discharge',
-            'Discharge'
+            'discharge'
         );
-        
+
         // Validate load
         this._validateSet(
-            ascLoadNumbers,
+            mscLoadNumbers,
             excelLoadNumbers,
-            'load',
-            'Load'
+            'load'
         );
-        
+
         // Check if validation passed
-        this.validationPassed = 
+        this.validationPassed =
             this.correctionIssues.discharge.length === 0 &&
             this.correctionIssues.load.length === 0;
-        
+
         return {
             passed: this.validationPassed,
             issues: this.correctionIssues,
-            summary: this._generateSummary(ascDiscNumbers, ascLoadNumbers, excelDiscNumbers, excelLoadNumbers)
+            summary: this._generateSummary(mscDiscNumbers, mscLoadNumbers, excelDiscNumbers, excelLoadNumbers)
         };
     }
-    
+
     /**
      * Validate a set of containers
      */
-    _validateSet(ascSet, excelSet, type, label) {
+    _validateSet(ascSet, excelSet, type) {
         // Find containers in ASC but not in Excel
         for (const cnum of ascSet) {
             if (!excelSet.has(cnum)) {
@@ -81,7 +83,7 @@ class Validator {
                 });
             }
         }
-        
+
         // Find containers in Excel but not in ASC
         for (const cnum of excelSet) {
             if (!ascSet.has(cnum)) {
@@ -92,7 +94,7 @@ class Validator {
                 });
             }
         }
-        
+
         // Sort by status (Only in Excel first)
         this.correctionIssues[type].sort((a, b) => {
             if (a.status < b.status) return 1;
@@ -100,16 +102,16 @@ class Validator {
             return a.container.localeCompare(b.container);
         });
     }
-    
+
     /**
      * Generate summary text
      */
     _generateSummary(ascDisc, ascLoad, excelDisc, excelLoad) {
         const discMatch = this._countMatches(ascDisc, excelDisc);
         const loadMatch = this._countMatches(ascLoad, excelLoad);
-        
+
         let summary = '';
-        
+
         if (this.validationPassed) {
             summary = '✓ All containers match! Validation passed.';
         } else {
@@ -117,10 +119,10 @@ class Validator {
             summary += `Discharge: ${ascDisc.size} in ASC, ${excelDisc.size} in Excel (${discMatch} match)\n`;
             summary += `Load: ${ascLoad.size} in ASC, ${excelLoad.size} in Excel (${loadMatch} match)`;
         }
-        
+
         return summary;
     }
-    
+
     /**
      * Count matching items between two sets
      */
@@ -131,7 +133,7 @@ class Validator {
         }
         return count;
     }
-    
+
     /**
      * Get validation status
      */
@@ -141,7 +143,7 @@ class Validator {
             issues: this.correctionIssues
         };
     }
-    
+
     /**
      * Clear validation results
      */

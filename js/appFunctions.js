@@ -260,19 +260,39 @@ function handleValidate() {
     // Update discharge status
     const discStatus = document.getElementById('disc-correction-status');
     if (discStatus) {
-        const discAsc = Object.keys(appState.discContainers).length;
+        const discAsc = Object.keys(appState.discContainers).filter(cnum => appState.discContainers[cnum].operatorcode === 'MSC').length;
         const discExcel = appState.typeAssignments.DIS.length + appState.typeAssignments.TSD.length;
         const discOk = result.issues.discharge.length === 0;
-        discStatus.textContent = `ASC: ${discAsc} | Excel: ${discExcel} | Status: ${discOk ? '✓ OK' : '⚠ Issues'}`;
+        discStatus.textContent = `ASC (MSC): ${discAsc} | Excel: ${discExcel} | Status: ${discOk ? '✓ OK' : '⚠ Issues'}`;
     }
 
     // Update load status
     const loadStatus = document.getElementById('load-correction-status');
     if (loadStatus) {
-        const loadAsc = Object.keys(appState.loadContainers).length;
+        const loadAsc = Object.keys(appState.loadContainers).filter(cnum => appState.loadContainers[cnum].operatorcode === 'MSC').length;
         const loadExcel = appState.typeAssignments.LOD.length + appState.typeAssignments.TSL.length;
         const loadOk = result.issues.load.length === 0;
-        loadStatus.textContent = `ASC: ${loadAsc} | Excel: ${loadExcel} | Status: ${loadOk ? '✓ OK' : '⚠ Issues'}`;
+        loadStatus.textContent = `ASC (MSC): ${loadAsc} | Excel: ${loadExcel} | Status: ${loadOk ? '✓ OK' : '⚠ Issues'}`;
+    }
+
+    // Update Correction Tab Badge and Alert Class
+    const badgeEl = document.getElementById('correction-tab-badge');
+    const tabBtn = document.querySelector('.tab-button[data-tab="correction"]');
+    const totalIssues = result.issues.discharge.length + result.issues.load.length;
+
+    if (badgeEl) {
+        badgeEl.textContent = totalIssues;
+        badgeEl.style.display = totalIssues > 0 ? 'inline' : 'none';
+        badgeEl.style.color = 'white';
+    }
+
+    if (tabBtn) {
+        tabBtn.classList.remove('tab-alert', 'tab-success');
+        if (totalIssues > 0) {
+            tabBtn.classList.add('tab-alert');
+        } else if (Object.keys(appState.discContainers).length > 0 || Object.keys(appState.loadContainers).length > 0) {
+            tabBtn.classList.add('tab-success');
+        }
     }
 
     showStatus(result.passed ? 'Validation passed!' : 'Validation found issues');
@@ -291,7 +311,7 @@ function updateValidationTree(treeId, issues) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="${issue.status.includes('Excel') ? 'excel-only' : 'asc-only'}">${issue.status}</td>
-            <td>${issue.container}</td>
+            <td class="copyable" title="Click to copy">${issue.container}</td>
             <td>${issue.source}</td>
         `;
         tbody.appendChild(tr);
@@ -380,6 +400,7 @@ function setupTabs() {
     });
 
     setupUnmappedTable();
+    setupCorrectionTables();
     setupLashingUI();
 }
 
@@ -565,6 +586,45 @@ function setupUnmappedTable() {
     });
 
     setupRecommendModal(tbody);
+}
+
+/**
+ * Setup Correction tab tables (click to copy)
+ */
+function setupCorrectionTables() {
+    const tableIds = ['disc-correction-tree', 'load-correction-tree'];
+
+    tableIds.forEach(id => {
+        const table = document.getElementById(id);
+        if (!table) return;
+
+        table.addEventListener('click', async (e) => {
+            const cell = e.target.closest('td');
+            if (!cell || cell.cellIndex !== 1) return; // Column 1 is Container Number
+
+            const containerNumber = cell.textContent.trim();
+            if (!containerNumber || containerNumber === 'Copied!') return;
+
+            try {
+                await navigator.clipboard.writeText(containerNumber);
+
+                // Visual feedback
+                const originalText = cell.textContent;
+                cell.textContent = 'Copied!';
+                cell.style.color = '#00b894';
+                cell.style.fontWeight = 'bold';
+
+                setTimeout(() => {
+                    cell.textContent = originalText;
+                    cell.style.color = '';
+                    cell.style.fontWeight = '';
+                }, 1000);
+
+            } catch (err) {
+                console.error('Copy failed:', err);
+            }
+        });
+    });
 }
 
 // Lashing UI functions have been moved to js/lashingUI.js

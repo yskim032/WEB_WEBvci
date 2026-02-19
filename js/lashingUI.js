@@ -175,7 +175,7 @@ function refreshLashingData() {
     lashingData.nonLashing.sort(sortByStowage);
 
     // Update counts
-    updateLashingCounts();
+    updateLashingBadgeCounts();
 
     // Render both tables
     renderLashingTable('lashing');
@@ -186,7 +186,7 @@ function refreshLashingData() {
 window.refreshLashingData = refreshLashingData;
 window.setupLashingUI = setupLashingUI;
 
-function updateLashingCounts() {
+function updateLashingBadgeCounts() {
     const lashingCount = document.getElementById('lashing-count');
     const nonLashingCount = document.getElementById('non-lashing-count');
 
