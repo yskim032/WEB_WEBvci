@@ -17,20 +17,29 @@ class Validator {
      * @param {object} discContainers - Discharge containers from ASC
      * @param {object} loadContainers - Load containers from ASC
      * @param {object} typeAssignments - Type assignments from Excel/UI
+     * @param {string} selectedPort - Currently selected port (e.g. 'KRPUS')
      * @returns {object} Validation results
      */
-    validate(discContainers, loadContainers, typeAssignments) {
+    validate(discContainers, loadContainers, typeAssignments, selectedPort) {
         this.correctionIssues = {
             discharge: [],
             load: []
         };
 
-        // Filter for MSC containers
+        // Filter for MSC containers matching the selected port
         const mscDiscNumbers = new Set(
-            Object.keys(discContainers).filter(cnum => discContainers[cnum].operatorcode === 'MSC')
+            Object.keys(discContainers).filter(cnum => {
+                const rec = discContainers[cnum];
+                const pod = rec.pod || '';
+                return rec.operatorcode === 'MSC' && (pod.startsWith(selectedPort) || pod === selectedPort);
+            })
         );
         const mscLoadNumbers = new Set(
-            Object.keys(loadContainers).filter(cnum => loadContainers[cnum].operatorcode === 'MSC')
+            Object.keys(loadContainers).filter(cnum => {
+                const rec = loadContainers[cnum];
+                const pol = rec.pol || '';
+                return rec.operatorcode === 'MSC' && (pol.startsWith(selectedPort) || pol === selectedPort);
+            })
         );
 
         // Get all container numbers from Excel/type assignments

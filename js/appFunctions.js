@@ -238,10 +238,12 @@ function assignFlag(containers, textareaId, fieldName) {
  * Handle validation
  */
 function handleValidate() {
+    const port = appState.selectedPort;
     const result = validator.validate(
         appState.discContainers,
         appState.loadContainers,
-        appState.typeAssignments
+        appState.typeAssignments,
+        port
     );
 
     // Update summary
@@ -260,19 +262,27 @@ function handleValidate() {
     // Update discharge status
     const discStatus = document.getElementById('disc-correction-status');
     if (discStatus) {
-        const discAsc = Object.keys(appState.discContainers).filter(cnum => appState.discContainers[cnum].operatorcode === 'MSC').length;
-        const discExcel = appState.typeAssignments.DIS.length + appState.typeAssignments.TSD.length;
+        const discAscCount = Object.keys(appState.discContainers).filter(cnum => {
+            const rec = appState.discContainers[cnum];
+            const pod = rec.pod || '';
+            return rec.operatorcode === 'MSC' && (pod.startsWith(port) || pod === port);
+        }).length;
+        const discExcelCount = appState.typeAssignments.DIS.length + appState.typeAssignments.TSD.length;
         const discOk = result.issues.discharge.length === 0;
-        discStatus.textContent = `ASC (MSC): ${discAsc} | Excel: ${discExcel} | Status: ${discOk ? '✓ OK' : '⚠ Issues'}`;
+        discStatus.textContent = `ASC (MSC): ${discAscCount} | Excel: ${discExcelCount} | Status: ${discOk ? '✓ OK' : '⚠ Issues'}`;
     }
 
     // Update load status
     const loadStatus = document.getElementById('load-correction-status');
     if (loadStatus) {
-        const loadAsc = Object.keys(appState.loadContainers).filter(cnum => appState.loadContainers[cnum].operatorcode === 'MSC').length;
-        const loadExcel = appState.typeAssignments.LOD.length + appState.typeAssignments.TSL.length;
+        const loadAscCount = Object.keys(appState.loadContainers).filter(cnum => {
+            const rec = appState.loadContainers[cnum];
+            const pol = rec.pol || '';
+            return rec.operatorcode === 'MSC' && (pol.startsWith(port) || pol === port);
+        }).length;
+        const loadExcelCount = appState.typeAssignments.LOD.length + appState.typeAssignments.TSL.length;
         const loadOk = result.issues.load.length === 0;
-        loadStatus.textContent = `ASC (MSC): ${loadAsc} | Excel: ${loadExcel} | Status: ${loadOk ? '✓ OK' : '⚠ Issues'}`;
+        loadStatus.textContent = `ASC (MSC): ${loadAscCount} | Excel: ${loadExcelCount} | Status: ${loadOk ? '✓ OK' : '⚠ Issues'}`;
     }
 
     // Update Correction Tab Badge and Alert Class
@@ -395,6 +405,8 @@ function setupTabs() {
                 refreshUnmappedTable();
             } else if (tabName === 'lashing') {
                 refreshLashingData();
+            } else if (tabName === 'correction') {
+                handleValidate();
             }
         });
     });

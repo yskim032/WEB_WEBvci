@@ -210,6 +210,11 @@ function updateAllCounts() {
     updateMatchedCounts();
     updateLashingCounts();
     updateTypeAssignmentCounts();
+
+    // Trigger validation for immediate feedback on Correction tab
+    if (typeof handleValidate === 'function') {
+        handleValidate();
+    }
 }
 
 /**
@@ -371,6 +376,11 @@ function updateTypeAssignmentCount(type) {
     const containers = extractContainerNumbers(textarea.value);
     appState.typeAssignments[type] = containers;
     countEl.textContent = `Count: ${containers.length}`;
+
+    // Trigger validation for immediate feedback on Correction tab
+    if (typeof handleValidate === 'function') {
+        handleValidate();
+    }
 }
 
 /**
