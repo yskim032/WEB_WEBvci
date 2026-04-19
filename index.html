@@ -69,6 +69,8 @@
                 Correction <span id="correction-tab-badge"
                     style="color:red; font-weight:bold; margin-left:5px; display:none;">0</span>
             </button>
+            <button class="tab-button" data-tab="ppr-check" style="color: #667eea; font-weight: bold;">PPR
+                Check</button>
         </nav>
 
         <!-- Main Tab -->
@@ -459,6 +461,30 @@
                 </div>
             </div>
         </div>
+
+        <!-- PPR Check Tab -->
+        <div id="ppr-check-tab" class="tab-content">
+            <div class="ppr-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="ppr-section file-zone">
+                    <h3 style="color:var(--text-primary);">IMPORT PPR Check</h3>
+                    <p style="margin-bottom:10px;">Paste Excel data starting from MSC Row (LOCAL, 자 T/S, 타 T/S):</p>
+                    <textarea id="ppr-import-input" rows="6" placeholder="MSC...&#10;자 T/S...&#10;타 T/S..."></textarea>
+                    <button id="btn-ppr-import" class="btn-paste" style="margin-top:15px; width:100%;">Check IMPORT
+                        Data</button>
+                    <div id="ppr-import-result" class="ppr-result-box" style="margin-top:20px;"></div>
+                </div>
+
+                <div class="ppr-section file-zone">
+                    <h3 style="color:var(--text-primary);">EXPORT PPR Check</h3>
+                    <p style="margin-bottom:10px;">Paste Excel data starting from MSC Row (LOCAL, 자 T/S, 타 T/S):</p>
+                    <textarea id="ppr-export-input" rows="6" placeholder="MSC...&#10;자 T/S...&#10;타 T/S..."></textarea>
+                    <button id="btn-ppr-export" class="btn-paste"
+                        style="margin-top:15px; width:100%; background: var(--secondary-gradient);">Check EXPORT
+                        Data</button>
+                    <div id="ppr-export-result" class="ppr-result-box" style="margin-top:20px;"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
@@ -470,6 +496,7 @@
     <script src="js/recommendationData.js"></script>
     <script src="js/lashingUI.js"></script>
     <script src="js/appFunctions.js"></script>
+    <script src="js/pprCheck.js"></script>
 </body>
 
 </html>
