@@ -69,12 +69,12 @@ function getAscTotals(type) {
                 if (isEmpty) ownTsEmpty++;
             }
 
-            if (isToTpf) {
+            if (isToTruck) {
                 if (isFull) otherTsFull++;
                 if (isEmpty) otherTsEmpty++;
             }
 
-            // Count TPF specifically for the red text message between the rows
+            // Count TPF specifically for the text message / new column
             if (isToTpf) {
                 tpfCount++;
             }
