@@ -41,9 +41,11 @@ function getAscTotals(type) {
     let mainType = type === 'import' ? 'DIS' : 'LOD';
     let tsType = type === 'import' ? 'TSD' : 'TSL';
 
-    let localFull = 0, localEmpty = 0;
+    let localTotal = 0;
     let ownTsFull = 0, ownTsEmpty = 0;
+    let ownTsTotal = 0;
     let otherTsFull = 0, otherTsEmpty = 0;
+    let otherTsTotal = 0;
     let tpfCount = 0;
 
     // Compute active merged containers to ensure type assignments are applied
@@ -54,6 +56,7 @@ function getAscTotals(type) {
         const isEmpty = (rec.fullempty === 'E');
 
         if (rec.type === mainType) {
+            localTotal++;
             if (isFull) localFull++;
             if (isEmpty) localEmpty++;
         }
@@ -65,11 +68,13 @@ function getAscTotals(type) {
             const isToTpf = rec.fromtotpf === 1;
 
             if (!isToTruck) {
+                ownTsTotal++;
                 if (isFull) ownTsFull++;
                 if (isEmpty) ownTsEmpty++;
             }
 
             if (isToTruck) {
+                otherTsTotal++;
                 if (isFull) otherTsFull++;
                 if (isEmpty) otherTsEmpty++;
             }
@@ -82,9 +87,9 @@ function getAscTotals(type) {
     }
 
     return {
-        localFull, localEmpty,
-        ownTsFull, ownTsEmpty,
-        otherTsFull, otherTsEmpty,
+        localFull, localEmpty, localTotal,
+        ownTsFull, ownTsEmpty, ownTsTotal,
+        otherTsFull, otherTsEmpty, otherTsTotal,
         tpfCount
     };
 }
@@ -232,9 +237,9 @@ function processPprHtml(input, ascTotals) {
     html += `</tbody></table>`;
 
     html += `<div style="margin-top:15px; font-size:12px; color:#666; text-align: left;">
-        LOCAL Full/Empty: ${ascTotals.localFull}/${ascTotals.localEmpty} | 
-        자 T/S Full/Empty: ${ascTotals.ownTsFull}/${ascTotals.ownTsEmpty} | 
-        타 T/S Full/Empty: ${ascTotals.otherTsFull}/${ascTotals.otherTsEmpty}
+        LOCAL Total: ${ascTotals.localTotal} (Full/Empty: ${ascTotals.localFull}/${ascTotals.localEmpty}) | 
+        자 T/S Total: ${ascTotals.ownTsTotal} (Full/Empty: ${ascTotals.ownTsFull}/${ascTotals.ownTsEmpty}) | 
+        타 T/S Total: ${ascTotals.otherTsTotal} (Full/Empty: ${ascTotals.otherTsFull}/${ascTotals.otherTsEmpty})
     </div>`;
 
     return html;
