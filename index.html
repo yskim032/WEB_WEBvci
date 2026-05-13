@@ -59,7 +59,8 @@
         <!-- Tab Navigation -->
         <nav class="tab-nav">
             <button class="tab-button active" data-tab="main">Main</button>
-            <button class="tab-button" data-tab="type-modification">Type Modification</button>
+            <button class="tab-button" data-tab="paste-list">Paste List</button>
+            <button class="tab-button" data-tab="type-modification">Special Cargo</button>
             <button class="tab-button" data-tab="unmapped">
                 Unmapped Types <span id="unmapped-tab-badge"
                     style="color:red; font-weight:bold; margin-left:5px; display:none;">0</span>
@@ -232,10 +233,110 @@
             </section>
         </div>
 
+        <!-- Paste List Tab -->
+        <div id="paste-list-tab" class="tab-content">
+            <div class="paste-list-container">
+
+                <!-- Instructions -->
+
+
+                <div class="paste-list-zones">
+
+                    <!-- DIS Paste Zone -->
+                    <div class="paste-zone-block discharge-zone">
+                        <div class="paste-zone-header">
+                            <h3>DIS &nbsp;<small style="font-weight:normal;font-size:0.85em;">(Col A=CNTR, B=L_TS,
+                                    C=TPF_CHK)</small></h3>
+                            <button id="pl-dis-clear" class="btn-paste"
+                                style="background:#e74c3c;font-size:0.8em;padding:4px 12px;">Clear</button>
+                        </div>
+                        <div id="pl-dis-drop" class="pl-drop-area disc-drop">
+                            Click to paste DIS data from clipboard
+                        </div>
+                        <div class="pl-counts">
+                            <span class="pl-count-badge pl-local">LOCAL: <strong id="pl-dis-local-cnt">0</strong></span>
+                            <span class="pl-count-badge pl-ts">TS: <strong id="pl-dis-ts-cnt">0</strong></span>
+                            <span class="pl-count-badge pl-truck">TRUCK: <strong id="pl-dis-truck-cnt">0</strong></span>
+                            <span class="pl-count-badge pl-tpf">TPF: <strong id="pl-dis-tpf-cnt">0</strong></span>
+                        </div>
+                        <div class="pl-columns">
+                            <div class="pl-col">
+                                <label>LOCAL (DIS) <span id="pl-dis-local-cnt2" class="pl-sublabel">0</span></label>
+                                <textarea id="pl-dis-local" rows="8" readonly placeholder="XX → DIS (Local)"></textarea>
+                            </div>
+                            <div class="pl-col">
+                                <label>TS (TSD) <span id="pl-dis-ts-cnt2" class="pl-sublabel">0</span></label>
+                                <textarea id="pl-dis-ts" rows="8" readonly placeholder="TI → TSD"></textarea>
+                            </div>
+                            <div class="pl-col">
+                                <label>TRUCK <span id="pl-dis-truck-cnt2" class="pl-sublabel">0</span></label>
+                                <textarea id="pl-dis-truck" rows="8" readonly placeholder="TX → Disc Truck"></textarea>
+                            </div>
+                            <div class="pl-col">
+                                <label>TPF <span id="pl-dis-tpf-cnt2" class="pl-sublabel">0</span></label>
+                                <textarea id="pl-dis-tpf" rows="8" readonly
+                                    placeholder="TPF_CHK=TPF → Disc TPF"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LOAD Paste Zone -->
+                    <div class="paste-zone-block load-zone">
+                        <div class="paste-zone-header">
+                            <h3>LOAD &nbsp;<small style="font-weight:normal;font-size:0.85em;">(Col D=CNTR, E=L_TS,
+                                    F=TPF_CHK)</small></h3>
+                            <button id="pl-load-clear" class="btn-paste"
+                                style="background:#e74c3c;font-size:0.8em;padding:4px 12px;">Clear</button>
+                        </div>
+                        <div id="pl-load-drop" class="pl-drop-area load-drop">
+                            Click to paste LOAD data from clipboard
+                        </div>
+                        <div class="pl-counts">
+                            <span class="pl-count-badge pl-local">LOCAL: <strong
+                                    id="pl-load-local-cnt">0</strong></span>
+                            <span class="pl-count-badge pl-ts">TS: <strong id="pl-load-ts-cnt">0</strong></span>
+                            <span class="pl-count-badge pl-truck">TRUCK: <strong
+                                    id="pl-load-truck-cnt">0</strong></span>
+                            <span class="pl-count-badge pl-tpf">TPF: <strong id="pl-load-tpf-cnt">0</strong></span>
+                        </div>
+                        <div class="pl-columns">
+                            <div class="pl-col">
+                                <label>LOCAL (LOD) <span id="pl-load-local-cnt2" class="pl-sublabel">0</span></label>
+                                <textarea id="pl-load-local" rows="8" readonly
+                                    placeholder="XX → LOD (Local)"></textarea>
+                            </div>
+                            <div class="pl-col">
+                                <label>TS (TSL) <span id="pl-load-ts-cnt2" class="pl-sublabel">0</span></label>
+                                <textarea id="pl-load-ts" rows="8" readonly placeholder="TI → TSL"></textarea>
+                            </div>
+                            <div class="pl-col">
+                                <label>TRUCK <span id="pl-load-truck-cnt2" class="pl-sublabel">0</span></label>
+                                <textarea id="pl-load-truck" rows="8" readonly placeholder="TX → Load Truck"></textarea>
+                            </div>
+                            <div class="pl-col">
+                                <label>TPF <span id="pl-load-tpf-cnt2" class="pl-sublabel">0</span></label>
+                                <textarea id="pl-load-tpf" rows="8" readonly
+                                    placeholder="TPF_CHK=TPF → Load TPF"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- end paste-list-zones -->
+
+                <div class="generate-section" style="margin-top:20px;">
+                    <button id="pl-apply-btn" class="btn-paste"
+                        style="background:var(--primary-gradient);font-size:1em;padding:10px 28px;">Apply to Main &amp;
+                        Generate XML</button>
+                    <span id="pl-status" class="status-info" style="margin-left:15px;"></span>
+                </div>
+
+            </div>
+        </div>
+
         <!-- Type Modification Tab -->
         <div id="type-modification-tab" class="tab-content">
             <section class="special-cargo">
-                <h3>Detected Special Cargo (from ASC Files)</h3>
+                <h3>Special Cargo (from ASC Files)</h3>
                 <div class="cargo-grid">
                     <div class="cargo-box">
                         <div class="cargo-header">
@@ -496,6 +597,7 @@
     <script src="js/recommendationData.js"></script>
     <script src="js/lashingUI.js"></script>
     <script src="js/appFunctions.js"></script>
+    <script src="js/pasteList.js"></script>
     <script src="js/pprCheck.js"></script>
 </body>
 

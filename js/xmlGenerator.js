@@ -67,7 +67,10 @@ function buildVcidataXml(containersDict, selectedPort) {
 
         addElement('operatorcode', rec.operatorcode || '');
         addElement('fullempty', rec.fullempty || '');
-        const typeabrev = rec.typeabrev || '';
+        let typeabrev = rec.typeabrev || '';
+        // Normalize 20RF to 20RE
+        if (typeabrev === '20RF') typeabrev = '20RE';
+
         addElement('typeabrev', typeabrev);
 
         // Map isocode based on typeabrev if available
@@ -79,14 +82,46 @@ function buildVcidataXml(containersDict, selectedPort) {
         }
 
         addElement('isocode', isocode);
-        addElement('type', rec.type || '');
+
+        // 1. Determine XML <type> based on container category
+        let xmlType = rec.type || '';
+
+        if (xmlType === 'LOCAL') {
+            // DIS if POD matches selected port, else LOD
+            if (rec.pod === selectedPort || (rec.pod && rec.pod.startsWith(selectedPort))) {
+                xmlType = 'DIS';
+            } else {
+                xmlType = 'LOD';
+            }
+        }
+        // If xmlType is already 'TSD' or 'TSL', we keep it as is.
+
+        // 2. Final safety: Ensure <type> is NEVER empty to avoid <type/> tags
+        if (!xmlType) {
+            if (rec.pod === selectedPort || (rec.pod && rec.pod.startsWith(selectedPort))) {
+                xmlType = 'DIS';
+            } else {
+                xmlType = 'LOD';
+            }
+        }
+
+        // Final overwrite check: we want to ensure TSD/TSL are not accidentally DIS/LOD
+        // The previous block handles MOST cases, but being explicit helps.
+        if (rec.type === 'TSD') xmlType = 'TSD';
+        if (rec.type === 'TSL') xmlType = 'TSL';
+
+        addElement('type', xmlType);
         addElement('number', number);
         addElement('OOG_Handling', rec.OOG_Handling || 0);
         addElement('Account', rec.Account || '');
         addElement('fromtorail', rec.fromtorail || 0);
         addElement('fromtobarge', rec.fromtobarge || 0);
-        addElement('fromtotpf', rec.fromtotpf || 0);
-        addElement('fromtotruck', rec.fromtotruck || 0);
+
+        // TRUCK/TPF part: If values exist, use 1 instead of 0
+        // These are set independently and DO NOT change the <type> assigned above.
+        addElement('fromtotpf', (rec.fromtotpf) ? 1 : 0);
+        addElement('fromtotruck', (rec.fromtotruck) ? 1 : 0);
+
         addElement('transdischargelocal', 0);
         addElement('transloadlocal', 0);
         addElement('transdischargeservicecode', '');

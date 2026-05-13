@@ -46,7 +46,10 @@ function extractMiddleFields(line) {
     const match = MIDDLE_PATTERN.exec(line);
     if (!match) return null;
 
-    const typeabrev = match[1];
+    let typeabrev = match[1];
+    // Normalize 20RF to 20RE
+    if (typeabrev === '20RF') typeabrev = '20RE';
+
     const weightStr = match[2].trim();
     const gross = parseInt(weightStr.replace(/^0+/, '') || '0');
     const fullempty = match[3];
@@ -320,11 +323,13 @@ function parseAscFile(content, originLabel) {
             rec.typeabrev = rec.typeabrev || mid.typeabrev;
             rec.grossweight = rec.grossweight || String(mid.gross);
             rec.fullempty = rec.fullempty || mid.fullempty;
+        }
 
-            // Map type abbreviation to ISO code (and record if unmapped)
-            if (rec.typeabrev) {
-                rec.isocode = mapTypeabrevToCode(rec.typeabrev, cnum);
-            }
+        // Map type abbreviation to ISO code (and record if unmapped)
+        if (rec.typeabrev) {
+            rec.isocode = mapTypeabrevToCode(rec.typeabrev, cnum);
+        } else {
+            recordUnmapped('', cnum);
         }
 
         // IMO flag

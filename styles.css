@@ -1132,3 +1132,177 @@ tbody tr.mapped {
     background: #7f8c8d !important;
     transform: translateY(-1px);
 }
+
+/* ──────────────────────────────────────────
+   Paste List Tab
+────────────────────────────────────────── */
+.paste-list-container {
+    padding: 5px 0;
+}
+
+.paste-list-instructions {
+    background: linear-gradient(135deg, #e0e7ff 0%, #cffafe 100%);
+    border-left: 5px solid #667eea;
+    padding: 14px 20px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    font-size: 0.97em;
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+
+.paste-list-zones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 1100px) {
+    .paste-list-zones {
+        grid-template-columns: 1fr;
+    }
+}
+
+.paste-zone-block {
+    background: var(--bg-light);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: var(--shadow-sm);
+}
+
+.paste-zone-block.discharge-zone {
+    border-top: 4px solid var(--discharge-border);
+}
+
+.paste-zone-block.load-zone {
+    border-top: 4px solid var(--load-border);
+}
+
+.paste-zone-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.paste-zone-header h3 {
+    margin: 0;
+    font-size: 1.15em;
+    color: var(--text-primary);
+}
+
+/* Clickable paste area */
+.pl-drop-area {
+    border: 3px dashed;
+    border-radius: 10px;
+    padding: 18px 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-bottom: 12px;
+    user-select: none;
+}
+
+.pl-drop-area.disc-drop {
+    background: var(--discharge-color);
+    border-color: var(--discharge-border);
+    color: #990033;
+}
+
+.pl-drop-area.load-drop {
+    background: var(--load-color);
+    border-color: var(--load-border);
+    color: #003366;
+}
+
+.pl-drop-area:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-md);
+}
+
+/* Count badges row */
+.pl-counts {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.pl-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.88em;
+    font-weight: 600;
+    color: white;
+}
+
+.pl-count-badge strong {
+    font-size: 1.05em;
+}
+
+.pl-local {
+    background: #667eea;
+}
+
+.pl-ts {
+    background: #f39c12;
+}
+
+.pl-truck {
+    background: #27ae60;
+}
+
+.pl-tpf {
+    background: #8e44ad;
+}
+
+/* Four columns layout */
+.pl-columns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 900px) {
+    .pl-columns {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.pl-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pl-col label {
+    font-weight: 600;
+    font-size: 0.88em;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pl-sublabel {
+    display: inline-block;
+    background: #e2e8f0;
+    color: var(--text-primary);
+    border-radius: 10px;
+    padding: 1px 8px;
+    font-size: 0.85em;
+    font-weight: 700;
+}
+
+.pl-col textarea {
+    font-size: 0.82em;
+    padding: 6px 8px;
+    background: #fff;
+    color: var(--text-primary);
+    min-height: 120px;
+}

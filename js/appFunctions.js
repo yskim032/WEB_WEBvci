@@ -96,7 +96,30 @@ function handleGenerateXml() {
         return;
     }
 
+    // ── Always sync typeAssignments directly from DOM before generating ──
+    // This ensures data from Paste Excel, Paste List, or manual entry
+    // is all correctly picked up regardless of event-propagation timing.
+    ['DIS', 'TSD', 'LOD', 'TSL'].forEach(type => {
+        const el = document.getElementById(`${type.toLowerCase()}-textarea`);
+        if (el) {
+            appState.typeAssignments[type] = extractContainerNumbers(el.value);
+        }
+    });
+
     try {
+        // Auto-fill selected rows in Unmapped table if multiple rows are selected
+        const unmappedTbody = document.querySelector('#unmapped-table tbody');
+        if (unmappedTbody) {
+            const selectedRows = Array.from(unmappedTbody.querySelectorAll('tr.selected'));
+            if (selectedRows.length >= 2) {
+                const containers = selectedRows.map(row => row.dataset.container || row.cells[0].textContent);
+                typeMapper.fillDown(containers);
+                if (typeof refreshUnmappedTable === 'function') {
+                    refreshUnmappedTable();
+                }
+            }
+        }
+
         // Merge containers and apply type assignments
         const mergedContainers = mergeAndAssignTypes();
 
@@ -168,10 +191,37 @@ function mergeAndAssignTypes() {
     }
 
     // Assign types based on text areas
-    assignType(merged, appState.typeAssignments.LOD, 'LOD');
-    assignType(merged, appState.typeAssignments.DIS, 'DIS');
-    assignType(merged, appState.typeAssignments.TSL, 'TSL');
-    assignType(merged, appState.typeAssignments.TSD, 'TSD');
+    // Also read directly from DOM elements to catch any updates that haven't
+    // propagated to appState yet (e.g. from Paste List tab 'apply' action).
+    const getFromTextarea = (id) => {
+        const el = document.getElementById(id);
+        return el ? extractContainerNumbers(el.value) : [];
+    };
+
+    const lodList = [...new Set([...appState.typeAssignments.LOD, ...getFromTextarea('lod-textarea')])];
+    const disList = [...new Set([...appState.typeAssignments.DIS, ...getFromTextarea('dis-textarea')])];
+    const tslList = [...new Set([...appState.typeAssignments.TSL, ...getFromTextarea('tsl-textarea')])];
+    const tsdList = [...new Set([...appState.typeAssignments.TSD, ...getFromTextarea('tsd-textarea')])];
+
+    // CRITICAL FIX: TS containers in the DIS ASC file have a DIFFERENT pod (not KRPUS),
+    // so they were excluded from 'merged' by the pod filter above.
+    // We must explicitly add them from discContainers regardless of pod.
+    const forceMergeList = [...new Set([...tsdList, ...tslList])];
+    for (const cnum of forceMergeList) {
+        if (!merged[cnum]) {
+            // Try to find in discContainers first, then loadContainers
+            const rec = appState.discContainers[cnum] || appState.loadContainers[cnum];
+            if (rec) {
+                merged[cnum] = { ...rec, type: '' };
+            }
+        }
+    }
+
+    // Apply in priority order: LOD < DIS < TSL < TSD (last one wins)
+    assignType(merged, lodList, 'LOD');
+    assignType(merged, disList, 'DIS');
+    assignType(merged, tslList, 'TSL');
+    assignType(merged, tsdList, 'TSD'); // TSD overrides DIS if same container
 
     // Assign Account codes
     assignAccount(merged, 'disc');
@@ -180,10 +230,14 @@ function mergeAndAssignTypes() {
     // Assign TPF flags
     assignFlag(merged, 'disc-tpf-text', 'fromtotpf');
     assignFlag(merged, 'load-tpf-text', 'fromtotpf');
+    assignFlag(merged, 'pl-dis-tpf', 'fromtotpf');
+    assignFlag(merged, 'pl-load-tpf', 'fromtotpf');
 
     // Assign Truck flags
     assignFlag(merged, 'disc-truck-text', 'fromtotruck');
     assignFlag(merged, 'load-truck-text', 'fromtotruck');
+    assignFlag(merged, 'pl-dis-truck', 'fromtotruck');
+    assignFlag(merged, 'pl-load-truck', 'fromtotruck');
 
     return merged;
 }
@@ -533,6 +587,25 @@ function setupUnmappedTable() {
     });
 
     document.addEventListener('mouseup', () => {
+        if (isDragging && startRowIndex !== -1) {
+            const selectedRows = Array.from(tbody.querySelectorAll('tr.selected'));
+            if (selectedRows.length >= 2) {
+                const rows = Array.from(tbody.children);
+                const startRow = rows[startRowIndex];
+                if (startRow) {
+                    const startContainer = startRow.dataset.container || startRow.cells[0].textContent;
+                    const startValue = typeMapper.getOverride(startContainer);
+
+                    if (startValue) {
+                        const containers = selectedRows.map(row => row.dataset.container || row.cells[0].textContent);
+                        // Put the start container at the front so fillDown uses its value
+                        const fillList = [startContainer, ...containers.filter(c => c !== startContainer)];
+                        typeMapper.fillDown(fillList);
+                        refreshUnmappedTable();
+                    }
+                }
+            }
+        }
         isDragging = false;
         startRowIndex = -1;
     });
